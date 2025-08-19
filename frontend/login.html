@@ -1,0 +1,47 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>なんかいい感じのストレージ</title>
+	</head>
+	<body>
+		<h1>なんかいい感じのストレージ</h1>
+		<div>
+			<div>
+				<label for="username">ユーザー名</label>
+				<input type="text" id="username">
+			</div>
+			<div>
+				<label for="password">パスワード</label>
+				<input type="password" id="password">
+			</div>
+			<input type="button" value="ログイン" id="login">
+			<p id="result"></p>
+		</div>
+		<script>
+			document.getElementById("login").onclick=()=>{
+				const username=document.getElementById("username").value;
+				const password=document.getElementById("password").value;
+				(async()=>{
+					document.getElementById("result").innerText="ログイン中";
+					let res=await fetch("/api/login",{
+						method:"POST",
+						body:JSON.stringify({
+							username,
+							password,
+						}),
+						headers:{
+							"Content-Type": "application/json"
+						},
+					});
+					let json=await res.json();
+					if(json.session_id){
+						document.getElementById("result").innerText="ログイン成功";
+						document.location="/";
+					}else{
+						document.getElementById("result").innerText="ログイン失敗";
+					}
+				})();
+			};
+		</script>
+	</body>
+</html>

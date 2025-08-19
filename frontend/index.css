@@ -1,0 +1,74 @@
+.thumbnail{
+	position: absolute;
+	width: 100%;
+	height: auto;
+	max-height: 100%;
+	z-index: 0;
+}
+.blurhash{
+	position: absolute;
+	z-index: -10;
+	width: 100%;
+	height: auto;
+}
+.file_icon{
+	position: relative;
+	width: 100px;
+	height: 100px;
+	margin: 5px;
+	display: flex;
+	align-items: center;
+}
+.file_name{
+	max-width: 100px;
+	white-space: nowrap;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+}
+.file{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+#file_list{
+	display: flex;
+	align-items: center;
+	align-content: center;
+	flex-wrap: wrap;
+}
+#popup_window{
+	top: 0;
+	bottom: 0;
+	right: 0;
+	left: 0;
+	background-color: #5555;
+	cursor: pointer;
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+#popup_window img,#popup_window video{
+	width: auto;
+	max-width: 95%;
+	height: calc(95% - 2em);
+	cursor: default;
+}
+body{
+	margin: 0;
+}
+#popup_menu{
+	min-width: 1em;
+	min-height: 1em;
+	position: absolute;
+	background-color: #FFF;
+	border: solid 1px #000;
+	margin: 0;
+	padding: 0;
+}
+#popup_menu a{
+	margin: 5px;
+	display: block;
+	cursor: pointer;
+}

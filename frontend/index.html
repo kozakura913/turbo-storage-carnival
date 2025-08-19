@@ -1,0 +1,72 @@
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>なんかいい感じのストレージ</title>
+	</head>
+	<body>
+		<h1>なんかいい感じのストレージ</h1>
+		<div>
+			<input type="file" id="upload_file" multiple>
+			<input type="button" value="アップロード" id="upload">
+			<progress id="file_upload" max="100" value="0">0%</progress>
+			<button id="mkdir">mkdir</button>
+		</div>
+		<ol id="file_list"></ol>
+		<script>
+			if(!document.cookie.includes("SID")){
+				document.location="/login.html";
+			}
+			let i18n=key=>key;
+			(async()=>{
+				let locale=await (await fetch("ja-jp.json")).json();
+				i18n=key=>locale[key]?locale[key]:key;
+				document.getElementById("mkdir").innerText=i18n("mkdir");
+			})();
+		</script>
+		<script>
+			document.getElementById("upload").onclick=()=>{
+				let f=document.getElementById("upload_file");
+				for(let file of f.files){
+					console.log(file);
+					upload(file);
+				}
+			};
+			document.getElementById("mkdir").onclick=async()=>{
+				let new_name=prompt(i18n("mkdir"),i18n("no_title"));
+				if(!new_name)return;
+				let directory=localStorage.getItem("directory");
+				if(!directory){
+					directory="/";
+					localStorage.setItem("directory","/");
+				}
+				if(!new_name.endsWith("/")){
+					new_name+="/";
+				}
+				let res=await fetch("/api/files/mkdir",{
+					method:"POST",
+					body:JSON.stringify({
+						directory:directory+new_name,
+					}),
+					headers:{
+						"Content-Type": "application/json"
+					},
+				});
+				let mod=await import("./file-list.js");
+				await mod.loadFileList();
+			};
+			(async()=>{
+				let mod=await import("./file-list.js");
+				await mod.loadFileList();
+			})();
+			function cd(directory){
+				localStorage.setItem("directory",directory);
+				(async()=>{
+					let mod=await import("./file-list.js");
+					await mod.loadFileList();
+				})();
+			}
+		</script>
+		<script src="upload.js"></script>
+		<link rel="stylesheet" href="index.css">
+	</body>
+</html>

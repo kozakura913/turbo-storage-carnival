@@ -1,0 +1,29 @@
+version: "3"
+services:
+  minio-server:
+    image: quay.io/minio/minio
+    restart: always
+    environment:
+      - MINIO_ROOT_USER=ErsnsAXf5aM9rQwqbX3Wmg2KsqQMax
+      - MINIO_ROOT_PASSWORD=XzRu44ewNbCmXegWdna4TcDjrH377m
+    command: server /data --console-address ":9001"
+    volumes:
+      - ./minio/:/data
+    ports:
+      - "23180:9000"
+      - "23181:9001"
+  db:
+    restart: always
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: "admin"
+      POSTGRES_USER: "root"
+      POSTGRES_DB: "database_name"
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    healthcheck:
+      test: "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"
+      interval: 5s
+      retries: 20
+    ports:
+      - 5432:5432

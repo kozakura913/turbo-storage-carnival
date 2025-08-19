@@ -4,3 +4,44 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+tokio-stream = "*"
+axum = { version = "0.7" }
+tower-http = { version = "*", features = ["compression-gzip","fs"] }
+tokio = { version = "1.0", features = ["rt-multi-thread","process","signal"] }
+tokio-util = { version = "0.7", features = ["io"] }
+futures = "0.3"
+futures-util = { version = "0.3", default-features = false, features = ["sink", "std"] }
+headers = "^0.3.8"
+serde = {version="^1.0.164",features=["derive"]}
+serde_json ="1"
+reqwest = { version = "0.12", default-features = false , features = ["stream","rustls-tls-webpki-roots"] }
+chrono = "0.4"
+rust-s3 = { git = "https://github.com/kozakura913/rust-s3" ,branch="with_metadata", default-features = false, features = ["tokio-rustls-tls", "fail-on-err"] }
+diesel ={version="*", features = ["chrono"]}
+diesel-async={git="https://github.com/weiznich/diesel_async.git",rev="017ebe2fb7a2709ab5db92148dea5ce812a35e09", features = ["postgres","bb8"]}
+hex-literal = "^0.4"
+ulid = "1.1.3"
+rand = "0.8.5"
+base64 = "0.22.1"
+sha2 = "0.10.8"
+infer = { version = "0.16", default-features = false }
+percent-encoding = "2.3.1"
+blurhash = "0.2.3"
+image = "0.25.4"
+fast_image_resize = "3.0.0"
+webp = "0.3.0"
+http-body-util = "0.1.2"
+axum-extra = {version="0.9.4",features=["typed-header"]}
+argon2 = "0.5.3"
+
+[profile.release]
+strip = true
+opt-level = 3
+lto = "thin"
+panic = "abort"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
