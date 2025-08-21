@@ -88,12 +88,16 @@ fn password_hash(new_password:&str)->Result<String,String>{
 	//let new_password=bcrypt::hash(new_password,16).map_err(|e|e.to_string())?;//bcryptは廃止した
 	use argon2::password_hash::SaltString;
 	use argon2::{Argon2, PasswordHasher, Algorithm, Version, Params};
-	let salt = SaltString::generate(&mut rand::thread_rng());
+	use rand::{RngCore,SeedableRng,rngs::StdRng};
+	let mut rng=StdRng::from_os_rng();
+	let mut salt = [0u8; 16];
+	rng.fill_bytes(&mut salt);
+	let salt = SaltString::encode_b64(&salt).map_err(|e|format!("{}:{} {:?}",file!(),line!(),e))?;
 	let new_password = Argon2::new(
 		Algorithm::Argon2id,
 		Version::V0x13,
 		Params::new(256*1024,2,16, None).unwrap(),
-	).hash_password(new_password.as_bytes(), &salt).map_err(|e|e.to_string())?.to_string();
+	).hash_password(new_password.as_bytes(), &salt).map_err(|e|format!("{}:{} {:?}",file!(),line!(),e))?.to_string();
 	Ok(new_password)
 }
 impl NewUser{

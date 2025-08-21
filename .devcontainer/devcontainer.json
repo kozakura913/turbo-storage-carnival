@@ -18,7 +18,11 @@
 	// connected. This is typically a file mount in .devcontainer/docker-compose.yml
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"features": {
-		"ghcr.io/devcontainers/features/rust:1": {}
+		"ghcr.io/devcontainers/features/rust:1": {
+			"version": "latest",
+			"profile": "minimal",
+			"targets": "x86_64-unknown-linux-musl"
+		}
 	}
 
 	// Features to add to the dev container. More info: https://containers.dev/features.

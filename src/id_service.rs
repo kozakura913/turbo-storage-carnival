@@ -31,7 +31,7 @@ impl UlidService{
 	}
 	pub fn new()->Self{
 		Self{
-			rng:Mutex::new(StdRng::from_entropy()),
+			rng:Mutex::new(StdRng::from_os_rng()),
 		}
 	}
 }

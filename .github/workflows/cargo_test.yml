@@ -1,0 +1,64 @@
+name: cargo_test
+
+on:
+  push:
+    branches: [ "master" , "develop" ]
+  pull_request:
+    branches: [ "master" , "develop" ]
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - x86_64-unknown-linux-musl
+          - x86_64-unknown-linux-gnu
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Cache cargo registry
+      uses: actions/cache@v4
+      with:
+        path: |
+          /musl
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+
+    - name: Install APT packages
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang pkg-config nasm mold git
+    - name: Download Musl
+      run: |
+        if [[ ${{ matrix.platform }} == *-unknown-linux-musl ]]; then
+          TARGET=${{ matrix.platform }}
+          MUSL_NAME=${TARGET/unknown-/}
+          if [ ! -d "/musl/${MUSL_NAME}-cross/bin" ]; then
+            sudo mkdir /musl
+            curl -sSL https://github.com/kozakura913/musl.cc/releases/download/20211122/${MUSL_NAME}-cross.tgz | sudo tar -zxf - -C /musl
+          fi
+          echo "MUSL_NAME=${MUSL_NAME}" >> $GITHUB_ENV
+          echo "CC=${MUSL_NAME}-gcc" >> $GITHUB_ENV
+          echo "CXX=${MUSL_NAME}-g++" >> $GITHUB_ENV
+          echo "AR=${MUSL_NAME}-ar" >> $GITHUB_ENV
+          echo "RUSTFLAGS=-C linker=${MUSL_NAME}-gcc" >> $GITHUB_ENV
+          echo "PKG_CONFIG_SYSROOT_DIR="/musl/${MUSL_NAME}-cross/" >> $GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS="--sysroot /musl/${MUSL_NAME}-cross/${MUSL_NAME}" >> $GITHUB_ENV
+          echo "/musl/${MUSL_NAME}-cross/bin" >> $GITHUB_PATH
+        else
+          echo "CC=clang" >> $GITHUB_ENV
+        fi
+    - name: add target
+      run: rustup target add ${{ matrix.platform }}
+    - name: Build test
+      run: cargo build --release --verbose --target ${{ matrix.platform }}
+    - name: Run tests
+      run: cargo test --verbose --target ${{ matrix.platform }}

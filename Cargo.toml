@@ -21,7 +21,7 @@ diesel ={version="*", features = ["chrono"]}
 diesel-async={git="https://github.com/weiznich/diesel_async.git",rev="017ebe2fb7a2709ab5db92148dea5ce812a35e09", features = ["postgres","bb8"]}
 hex-literal = "^0.4"
 ulid = "1.1.3"
-rand = "0.8.5"
+rand = "*"
 base64 = "0.22.1"
 sha2 = "0.10.8"
 infer = { version = "0.16", default-features = false }
