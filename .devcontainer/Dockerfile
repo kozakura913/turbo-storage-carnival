@@ -1,6 +1,7 @@
 FROM public.ecr.aws/docker/library/rust:latest as build_app
 RUN apt-get update && apt-get install -y clang musl-dev pkg-config nasm git mold
 RUN mkdir /musl && curl -sSL https://github.com/kozakura913/musl.cc/releases/download/20211122/x86_64-linux-musl-cross.tgz | tar -zxf - -C /musl
+RUN apt-get install -y ffmpeg
 ARG UID="991"
 ARG GID="991"
 RUN groupadd -g "${GID}" tsc && useradd -l -u "${UID}" -g "${GID}" -m -d /tsc tsc

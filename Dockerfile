@@ -13,6 +13,7 @@ COPY Cargo.toml ./Cargo.toml
 RUN --mount=type=cache,target=/var/cache/cargo --mount=type=cache,target=/app/target bash /app/crossfiles/build.sh
 
 FROM public.ecr.aws/docker/library/alpine:latest
+RUN apk add --update --no-cache ffmpeg
 ARG UID="334"
 ARG GID="334"
 RUN addgroup -g "${GID}" tsc && adduser -u "${UID}" -G tsc -D -h /tsc -s /bin/sh tsc

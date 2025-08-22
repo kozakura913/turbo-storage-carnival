@@ -99,11 +99,12 @@ pub async fn post(
 				return (axum::http::StatusCode::INTERNAL_SERVER_ERROR).into_response();
 			},
 		}
-		let content_type=session.content_type.as_ref().map(|s|s.as_str()).unwrap_or_default();
-		if content_type.starts_with("image/")||content_type.starts_with("video/"){
-			println!("ffmpeg");
-			(metadata,thumbnail_key,blurhash)=ffmpeg_metadata(&ctx,&session.s3_key).await;
-		}
+	}
+	let content_type=session.content_type.as_ref().map(|s|s.as_str()).unwrap_or_default();
+	println!("content_type:{:?}",content_type);
+	if content_type.starts_with("image/")||content_type.starts_with("video/"){
+		println!("ffmpeg");
+		(metadata,thumbnail_key,blurhash)=ffmpeg_metadata(&ctx,&session.s3_key).await;
 	}
 	let now=chrono::Utc::now();
 	let basename=session.title.unwrap_or_else(||"no_title".into());
@@ -117,6 +118,7 @@ pub async fn post(
 			break;
 		}
 	}
+	println!("blurhash:{:?}",blurhash);
 	let last_modified=session.last_modified.as_ref().map(|s|chrono::DateTime::parse_from_rfc3339(s).map(|c|c.to_utc()).ok()).unwrap_or_default();
 	let e=NewFileEntry{
 		user_id:session.user_id,

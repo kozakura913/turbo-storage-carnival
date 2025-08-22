@@ -110,11 +110,22 @@ export async function loadFileList() {
 	if(directory!=="/"){
 		let s=directory.substring(0,directory.length-1);
 		let t=s.substring(0,s.lastIndexOf("/"));
+		let res=await fetch("/api/files/meta",{
+			method:"POST",
+			body:JSON.stringify({
+				path:t,
+			}),
+			headers:{
+				"Content-Type": "application/json"
+			},
+		});
+		let json=await res.json();
+		if(!json)json={id:0};
 		load_entry({
 			"blurhash": null,
 			"content_type": "application/x-directory",
 			"directory": t,
-			"id": 120,
+			"id": json.id,
 			"metadata": null,
 			"name": "../",
 			"sha256": null,
@@ -210,17 +221,26 @@ async function load_entry(entry) {
 		if(!id){
 			return;
 		}
-		let res=await fetch("/api/files/meta",{
-			method:"POST",
-			body:JSON.stringify({
-				id:Number(event.target.parentElement.id),
-			}),
-			headers:{
-				"Content-Type": "application/json"
-			},
-		});
-		//TODO 親ディレクトリに移動する操作が機能しないので検証する
-		let dir_info=await res.json();
+		let dir_info=undefined;
+		if(Number(event.target.parentElement.id)===0){
+			// /に移動させる
+			dir_info={
+				directory:"",
+				name:"/",
+			};
+		}else{
+			let res=await fetch("/api/files/meta",{
+				method:"POST",
+				body:JSON.stringify({
+					id:Number(event.target.parentElement.id),
+				}),
+				headers:{
+					"Content-Type": "application/json"
+				},
+			});
+			dir_info=await res.json();
+		}
+		console.log(dir_info);
 		if(dir_info.name){
 			let res=await fetch("/api/files/mv",{
 				method:"POST",

@@ -6,7 +6,8 @@ use super::list::ResponseFile;
 
 #[derive(Deserialize)]
 pub(crate) struct Files {
-	id: i64,
+	id: Option<i64>,
+	path:Option<String>,
 }
 pub async fn post(
 	ctx:Context,
@@ -19,10 +20,37 @@ pub async fn post(
 		None=>return StatusCode::FORBIDDEN.into_response()
 	};
 	let mut json=serde_json::Value::Null;
-	if let Ok(file)=crate::models::file::FileEntry::load_by_id(&ctx.db,session.user_id, payload.id).await{
-		let f=Into::<ResponseFile>::into(file);
-		if let Ok(f)=serde_json::to_value(f){
-			json=f;
+	match (payload.id,&payload.path){
+		(None,Some(path))=>{
+			let path=if path.chars().last()==Some('/'){
+				&path[..path.len()-1]
+			}else{
+				path.as_str()
+			};
+			let mut n=path;
+			let mut d="";
+			if let Some(idx)=path.rfind('/'){
+				(d,n)=path.split_at(idx+1);
+			}
+			let n=format!("{}/",n);
+			println!("{d}@{n}");
+			if let Ok(file)=crate::models::file::FileEntry::load_by_path(&ctx.db,session.user_id, d,&n).await{
+				let f=Into::<ResponseFile>::into(file);
+				if let Ok(f)=serde_json::to_value(f){
+					json=f;
+				}
+			}
+		},
+		(Some(id),_)=>{
+			if let Ok(file)=crate::models::file::FileEntry::load_by_id(&ctx.db,session.user_id, id).await{
+				let f=Into::<ResponseFile>::into(file);
+				if let Ok(f)=serde_json::to_value(f){
+					json=f;
+				}
+			}
+		},
+		_=>{
+			return StatusCode::BAD_REQUEST.into_response();
 		}
 	}
 	let mut header=axum::http::header::HeaderMap::new();
